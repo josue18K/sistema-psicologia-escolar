@@ -11,46 +11,22 @@ use App\Http\Controllers\Api\CitaController;
 use App\Http\Controllers\Api\ReporteController;
 use App\Http\Controllers\Api\NotificacionController;
 
+//RUTAS AUTH
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
-
-<<<<<<< HEAD
-Route::apiResource('apoderado', ApoderadoController::class);
-
+Route::post('/login',[AuthController::class, 'login']);
+Route::post('logout',[AuthController::class, 'logout']);
+Route::get('/me',[AuthController::class,'me']);
+Route::post('/register',[Authcontroller::class, 'register']);
 
 
+// ESTUDIANTE
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Route::get('/estudiantes',[EstudianteController::class,'index']);
+Route::get('/estudiantes',[EstudianteController::class,'store']);
+Route::get('/estudiantes/{dni}', [EstudianteController::class, 'show']);
+Route::put('/estudiantes/{dni}', [EstudianteController::class, 'update']);
+Route::delete('/estudiantes/{dni}', [EstudianteController::class, 'destroy']);
+Route::get('/estudiante-search',[EstudianteController::class, 'search']);
 
 
 
@@ -130,11 +106,5 @@ Route::post('/notificaciones-marcar-todas-leidas', [NotificacionController::clas
 Route::get('/notificaciones-no-leidas', [NotificacionController::class, 'noLeidas']);
 Route::get('/notificaciones-enviadas', [NotificacionController::class, 'enviadas']);
 
-=======
-//RUTAS AUTH
 
-Route::post('/login',[AuthController::class, 'login']);
-Route::post('logout',[AuthController::class, 'logout']);
-Route::get('/me',[AuthController::class,'me']);
-Route::post('/register',[Authcontroller::class, 'register']);
->>>>>>> origin/camila-dev
+
