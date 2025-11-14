@@ -27,7 +27,7 @@ export const useAuthStore = defineStore('auth', {
           this.user = response.data.user
           this.isAuthenticated = true
 
-          // Guardar en localStorage (temporal hasta Sanctum)
+          // Guardar en localStorage
           localStorage.setItem('user_data', JSON.stringify(this.user))
           localStorage.setItem('isAuthenticated', 'true')
 
@@ -44,9 +44,11 @@ export const useAuthStore = defineStore('auth', {
 
     async logout() {
       try {
+        // Intentar hacer logout en el backend
         await authService.logout()
       } catch (error) {
-        console.error('Error en logout:', error)
+        console.error('Error en logout API:', error)
+        // Continuar con el logout local incluso si falla la API
       } finally {
         this.clearAuth()
       }
@@ -60,7 +62,8 @@ export const useAuthStore = defineStore('auth', {
           this.isAuthenticated = true
           return true
         }
-      } catch {
+      } catch (error) {
+        console.error('Error checking auth:', error)
         this.clearAuth()
         return false
       }
@@ -70,9 +73,16 @@ export const useAuthStore = defineStore('auth', {
       this.user = null
       this.token = null
       this.isAuthenticated = false
+
+      // Limpiar localStorage completamente
       localStorage.removeItem('user_data')
       localStorage.removeItem('isAuthenticated')
       localStorage.removeItem('auth_token')
+
+      // Limpiar sessionStorage también por si acaso
+      sessionStorage.clear()
+
+      console.log('Auth cleared successfully')
     },
 
     initializeAuth() {
@@ -81,8 +91,14 @@ export const useAuthStore = defineStore('auth', {
       const isAuth = localStorage.getItem('isAuthenticated')
 
       if (userData && isAuth === 'true') {
-        this.user = JSON.parse(userData)
-        this.isAuthenticated = true
+        try {
+          this.user = JSON.parse(userData)
+          this.isAuthenticated = true
+          console.log('Auth initialized from localStorage')
+        } catch (error) {
+          console.error('Error parsing user data:', error)
+          this.clearAuth()
+        }
       }
     }
   }

@@ -1,7 +1,7 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated class="bg-primary text-white">
-      <q-toolbar>
+  <q-layout view="lHh Lpr lFf" class="bg-grey-1">
+    <q-header elevated class="bg-gradient-primary text-white shadow-4">
+      <q-toolbar class="q-py-sm">
         <q-btn
           flat
           dense
@@ -9,68 +9,87 @@
           icon="menu"
           aria-label="Menu"
           @click="toggleLeftDrawer"
+          class="q-mr-sm"
         />
 
-        <q-toolbar-title>
-          <q-icon name="psychology" class="q-mr-sm" />
-          Sistema de Psicología Escolar
+        <q-toolbar-title class="row items-center no-wrap">
+          <q-icon name="psychology" size="28px" class="q-mr-sm" />
+          <div>
+            <div class="text-h6 text-weight-bold">Sistema de Psicología Escolar</div>
+            <div class="text-caption opacity-60">Plataforma de gestión integral</div>
+          </div>
         </q-toolbar-title>
 
-        <div class="q-gutter-sm row items-center">
-          <!-- Notificaciones -->
-          <q-btn flat round icon="notifications" @click="toggleNotificaciones">
-            <q-badge
-              v-if="totalNoLeidas > 0"
-              color="red"
-              floating
-              rounded
-            >
-              {{ totalNoLeidas }}
-            </q-badge>
-            <q-tooltip>Notificaciones</q-tooltip>
-          </q-btn>
+        <q-space />
 
-          <!-- Usuario -->
-          <q-btn flat round icon="person">
-            <q-menu auto-close>
-              <q-list style="min-width: 200px">
-                <q-item>
-                  <q-item-section avatar>
-                    <q-avatar color="primary" text-color="white">
-                      {{ userInitials }}
-                    </q-avatar>
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label>{{ user?.name }}</q-item-label>
-                    <q-item-label caption>{{ user?.email }}</q-item-label>
-                    <q-item-label caption class="text-capitalize">
-                      {{ user?.rol?.toLowerCase() }}
-                    </q-item-label>
-                  </q-item-section>
-                </q-item>
+        <!-- Notificaciones -->
+        <!-- Notificaciones -->
+        <q-btn flat round icon="notifications" class="q-mr-sm" @click="toggleNotificaciones">
+          <q-badge v-if="totalNoLeidas > 0" color="red" floating rounded class="notification-badge">
+            {{ totalNoLeidas > 99 ? '99+' : totalNoLeidas }}
+          </q-badge>
+          <q-tooltip>Notificaciones</q-tooltip>
+        </q-btn>
 
-                <q-separator />
+        <!-- Usuario - CORREGIDO -->
+        <q-btn-dropdown
+          flat
+          no-icon-animation
+          class="user-dropdown"
+          :label="user?.name"
+          :loading="loadingUserMenu"
+        >
+          <template v-slot:label>
+            <div class="row items-center no-wrap">
+              <q-avatar size="32px" class="q-mr-sm bg-white text-primary">
+                {{ userInitials }}
+              </q-avatar>
+              <div class="text-capitalize text-caption">
+                {{ user?.rol?.toLowerCase() }}
+              </div>
+            </div>
+          </template>
 
-                <q-item clickable @click="cambiarPassword">
-                  <q-item-section avatar>
-                    <q-icon name="lock" />
-                  </q-item-section>
-                  <q-item-section>Cambiar Contraseña</q-item-section>
-                </q-item>
+          <!-- Menú Desplegable -->
+          <q-list class="user-menu-list">
+            <!-- Información del Usuario -->
+            <q-item class="user-info-section">
+              <q-item-section>
+                <q-item-label class="text-weight-bold">{{ user?.name }}</q-item-label>
+                <q-item-label caption class="text-grey-7">{{ user?.email }}</q-item-label>
+                <q-item-label>
+                  <q-chip size="sm" color="primary" text-color="white" class="text-capitalize">
+                    {{ user?.rol?.toLowerCase() }}
+                  </q-chip>
+                </q-item-label>
+              </q-item-section>
+            </q-item>
 
-                <q-separator />
+            <q-separator />
 
-                <q-item clickable @click="logout">
-                  <q-item-section avatar>
-                    <q-icon name="logout" />
-                  </q-item-section>
-                  <q-item-section>Cerrar Sesión</q-item-section>
-                </q-item>
-              </q-list>
-            </q-menu>
-            <q-tooltip>Perfil de usuario</q-tooltip>
-          </q-btn>
-        </div>
+            <!-- Cambiar Contraseña -->
+            <q-item clickable v-ripple @click="cambiarPassword">
+              <q-item-section avatar>
+                <q-icon name="lock" color="primary" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Cambiar Contraseña</q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-separator />
+
+            <!-- Cerrar Sesión -->
+            <q-item clickable v-ripple @click="logout" class="text-negative">
+              <q-item-section avatar>
+                <q-icon name="logout" color="negative" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Cerrar Sesión</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
       </q-toolbar>
     </q-header>
 
@@ -78,63 +97,148 @@
       v-model="leftDrawerOpen"
       show-if-above
       bordered
-      class="bg-grey-2"
+      class="bg-white text-grey-9"
+      :width="280"
     >
-      <q-list padding>
-        <q-item-label header class="text-weight-bold">
-          Navegación Principal
-        </q-item-label>
-
-        <EssentialLink
-          v-for="link in essentialLinks"
-          :key="link.title"
-          v-bind="link"
-        />
-
-        <q-separator class="q-my-md" />
-
-        <!-- Menú según rol -->
-        <template v-if="isTOE || isDirector">
-          <q-item-label header class="text-weight-bold">
-            Administración
+      <q-scroll-area class="fit">
+        <q-list padding class="menu-list">
+          <q-item-label header class="text-weight-bold text-grey-8 q-pb-md">
+            Navegación Principal
           </q-item-label>
 
-          <EssentialLink
-            v-if="isTOE"
-            icon="people"
-            title="Gestión de Usuarios"
-            caption="Administrar usuarios del sistema"
-            link="/usuarios"
-          />
+          <q-item
+            clickable
+            v-ripple
+            to="/"
+            exact
+            class="menu-item q-mb-xs"
+            active-class="menu-item-active"
+          >
+            <q-item-section avatar>
+              <q-icon name="dashboard" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Dashboard</q-item-label>
+              <q-item-label caption>Resumen del sistema</q-item-label>
+            </q-item-section>
+          </q-item>
 
-          <EssentialLink
-            icon="assessment"
-            title="Reportes Globales"
-            caption="Estadísticas y reportes"
-            link="/reportes"
-          />
-        </template>
+          <q-item
+            clickable
+            v-ripple
+            to="/estudiantes"
+            class="menu-item q-mb-xs"
+            active-class="menu-item-active"
+          >
+            <q-item-section avatar>
+              <q-icon name="school" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Estudiantes</q-item-label>
+              <q-item-label caption>Gestión de estudiantes</q-item-label>
+            </q-item-section>
+          </q-item>
 
-        <template v-if="isPsicologo || isTOE">
-          <q-item-label header class="text-weight-bold">
-            Psicología
-          </q-item-label>
+          <q-item
+            clickable
+            v-ripple
+            to="/apoderados"
+            class="menu-item q-mb-xs"
+            active-class="menu-item-active"
+          >
+            <q-item-section avatar>
+              <q-icon name="family_restroom" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Apoderados</q-item-label>
+              <q-item-label caption>Gestión de apoderados</q-item-label>
+            </q-item-section>
+          </q-item>
 
-          <EssentialLink
-            icon="event"
-            title="Gestión de Citas"
-            caption="Agendar y gestionar citas"
-            link="/citas"
-          />
+          <!-- Menú Psicología -->
+          <template v-if="isPsicologo || isTOE">
+            <q-separator class="q-my-md" />
 
-          <EssentialLink
-            icon="clinical_notes"
-            title="Diagnósticos"
-            caption="Registrar y consultar diagnósticos"
-            link="/diagnosticos"
-          />
-        </template>
-      </q-list>
+            <q-item-label header class="text-weight-bold text-grey-8 q-pb-md">
+              Módulo Psicología
+            </q-item-label>
+
+            <q-item
+              clickable
+              v-ripple
+              to="/diagnosticos"
+              class="menu-item q-mb-xs"
+              active-class="menu-item-active"
+            >
+              <q-item-section avatar>
+                <q-icon name="clinical_notes" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Diagnósticos</q-item-label>
+                <q-item-label caption>Evaluaciones psicológicas</q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-item
+              clickable
+              v-ripple
+              to="/citas"
+              class="menu-item q-mb-xs"
+              active-class="menu-item-active"
+            >
+              <q-item-section avatar>
+                <q-icon name="event" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Citas</q-item-label>
+                <q-item-label caption>Agenda de consultas</q-item-label>
+              </q-item-section>
+            </q-item>
+          </template>
+
+          <!-- Menú Administración -->
+          <template v-if="isTOE || isDirector">
+            <q-separator class="q-my-md" />
+
+            <q-item-label header class="text-weight-bold text-grey-8 q-pb-md">
+              Administración
+            </q-item-label>
+
+            <q-item
+              v-if="isTOE"
+              clickable
+              v-ripple
+              to="/usuarios"
+              class="menu-item q-mb-xs"
+              active-class="menu-item-active"
+            >
+              <q-item-section avatar>
+                <q-icon name="people" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Usuarios</q-item-label>
+                <q-item-label caption>Gestión de usuarios</q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-item
+              clickable
+              v-ripple
+              to="/reportes"
+              class="menu-item q-mb-xs"
+              active-class="menu-item-active"
+            >
+              <q-item-section avatar>
+                <q-icon name="assessment" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Reportes</q-item-label>
+                <q-item-label caption>Estadísticas y reportes</q-item-label>
+              </q-item-section>
+            </q-item>
+          </template>
+        </q-list>
+      </q-scroll-area>
     </q-drawer>
 
     <q-page-container>
@@ -143,17 +247,11 @@
 
     <!-- Dialog de Notificaciones -->
     <q-dialog v-model="dialogNotificaciones" position="top">
-      <q-card style="width: 400px; max-width: 80vw;">
+      <q-card class="notifications-card">
         <q-card-section class="row items-center q-pb-none">
           <div class="text-h6">Notificaciones</div>
           <q-space />
-          <q-btn
-            flat
-            round
-            dense
-            icon="close"
-            v-close-popup
-          />
+          <q-btn flat round dense icon="close" v-close-popup />
           <q-btn
             flat
             round
@@ -161,61 +259,72 @@
             icon="done_all"
             @click="marcarTodasLeidas"
             v-if="totalNoLeidas > 0"
+            class="q-ml-xs"
           >
             <q-tooltip>Marcar todas como leídas</q-tooltip>
           </q-btn>
         </q-card-section>
 
-        <q-card-section>
-          <div v-if="notificaciones.length === 0" class="text-center q-pa-md">
-            <q-icon name="notifications_off" size="xl" color="grey" />
-            <div class="text-grey q-mt-sm">No hay notificaciones</div>
+        <q-card-section class="q-pt-none">
+          <div v-if="notificaciones.length === 0" class="text-center q-pa-xl">
+            <q-icon name="notifications_off" size="xl" color="grey-4" />
+            <div class="text-grey q-mt-md text-h6">No hay notificaciones</div>
+            <div class="text-grey-6">Cuando tengas notificaciones, aparecerán aquí</div>
           </div>
 
-          <q-list bordered separator v-else>
-            <q-item
-              v-for="notif in notificaciones"
-              :key="notif.id"
-              clickable
-              :class="{ 'bg-blue-1': !notif.leida }"
-              @click="verNotificacion(notif)"
-            >
-              <q-item-section avatar>
-                <q-icon
-                  :name="notif.leida ? 'mark_email_read' : 'mark_unread'"
-                  :color="notif.leida ? 'grey' : 'primary'"
-                />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="text-caption text-grey">
-                  De: {{ notif.remitente?.name }}
-                </q-item-label>
-                <q-item-label>{{ notif.mensaje }}</q-item-label>
-                <q-item-label caption>
-                  {{ formatDateTime(notif.fecha_envio) }}
-                </q-item-label>
-              </q-item-section>
-              <q-item-section side top>
-                <q-btn
-                  flat
-                  round
-                  dense
-                  icon="close"
-                  size="sm"
-                  @click.stop="eliminarNotificacion(notif.id)"
-                />
-              </q-item-section>
-            </q-item>
-          </q-list>
+          <q-scroll-area v-else style="height: 400px">
+            <q-list bordered separator class="rounded-borders">
+              <q-item
+                v-for="notif in notificaciones"
+                :key="notif.id"
+                clickable
+                :class="{ 'bg-blue-1': !notif.leida }"
+                @click="verNotificacion(notif)"
+                class="notification-item"
+              >
+                <q-item-section avatar>
+                  <q-avatar
+                    :color="notif.leida ? 'grey-3' : 'primary'"
+                    text-color="white"
+                    size="lg"
+                  >
+                    <q-icon :name="notif.leida ? 'mark_email_read' : 'mark_unread'" size="20px" />
+                  </q-avatar>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-caption text-grey-7">
+                    De: {{ notif.remitente?.name }}
+                  </q-item-label>
+                  <q-item-label class="text-weight-medium">{{ notif.mensaje }}</q-item-label>
+                  <q-item-label caption class="text-grey-6">
+                    {{ formatDateTime(notif.fecha_envio) }}
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section side top class="gt-xs">
+                  <q-btn
+                    flat
+                    round
+                    dense
+                    icon="close"
+                    size="sm"
+                    color="grey-6"
+                    @click.stop="eliminarNotificacion(notif.id)"
+                  />
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-scroll-area>
         </q-card-section>
       </q-card>
     </q-dialog>
 
     <!-- Dialog Cambiar Contraseña -->
     <q-dialog v-model="dialogCambiarPassword" persistent>
-      <q-card style="min-width: 400px">
-        <q-card-section>
+      <q-card class="password-card">
+        <q-card-section class="row items-center q-pb-none">
           <div class="text-h6">Cambiar Contraseña</div>
+          <q-space />
+          <q-btn flat round dense icon="close" v-close-popup />
         </q-card-section>
 
         <q-card-section class="q-pt-none">
@@ -225,7 +334,12 @@
               label="Contraseña Actual"
               :type="showPassword ? 'text' : 'password'"
               required
+              outlined
+              color="primary"
             >
+              <template v-slot:prepend>
+                <q-icon name="lock" />
+              </template>
               <template v-slot:append>
                 <q-icon
                   :name="showPassword ? 'visibility_off' : 'visibility'"
@@ -240,24 +354,37 @@
               label="Nueva Contraseña"
               :type="showPassword ? 'text' : 'password'"
               required
-            />
+              outlined
+              color="primary"
+            >
+              <template v-slot:prepend>
+                <q-icon name="password" />
+              </template>
+            </q-input>
 
             <q-input
               v-model="passwordForm.password_nuevo_confirmation"
               label="Confirmar Nueva Contraseña"
               :type="showPassword ? 'text' : 'password'"
               required
-            />
+              outlined
+              color="primary"
+            >
+              <template v-slot:prepend>
+                <q-icon name="check_circle" />
+              </template>
+            </q-input>
           </q-form>
         </q-card-section>
 
-        <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="primary" v-close-popup />
+        <q-card-actions align="right" class="q-pa-md">
+          <q-btn flat label="Cancelar" color="grey" v-close-popup />
           <q-btn
-            label="Cambiar"
+            label="Cambiar Contraseña"
             color="primary"
             @click="submitCambiarPassword"
             :loading="loadingPassword"
+            unelevated
           />
         </q-card-actions>
       </q-card>
@@ -273,7 +400,6 @@ import { useAuthStore } from 'src/stores/auth-store'
 import { useNotificacionStore } from 'src/stores/notificacion-store'
 import { userService } from 'src/services/api'
 import { formatDateTime } from 'src/utils/helpers'
-import EssentialLink from 'components/EssentialLink.vue'
 
 const $q = useQuasar()
 const router = useRouter()
@@ -285,6 +411,7 @@ const dialogNotificaciones = ref(false)
 const dialogCambiarPassword = ref(false)
 const showPassword = ref(false)
 const loadingPassword = ref(false)
+const loadingUserMenu = ref(false)
 
 const passwordForm = ref({
   password_actual: '',
@@ -311,32 +438,6 @@ const isDirector = computed(() => authStore.isDirector)
 const notificaciones = computed(() => notificacionStore.getNotificaciones)
 const totalNoLeidas = computed(() => notificacionStore.getTotalNoLeidas)
 
-// Links esenciales según rol
-const essentialLinks = computed(() => {
-  const baseLinks = [
-    {
-      icon: 'dashboard',
-      title: 'Dashboard',
-      caption: 'Resumen del sistema',
-      link: '/'
-    },
-    {
-      icon: 'school',
-      title: 'Estudiantes',
-      caption: 'Gestión de estudiantes',
-      link: '/estudiantes'
-    },
-    {
-      icon: 'family_restroom',
-      title: 'Apoderados',
-      caption: 'Gestión de apoderados',
-      link: '/apoderados'
-    }
-  ]
-
-  return baseLinks
-})
-
 // Methods
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value
@@ -360,8 +461,12 @@ async function verNotificacion(notif) {
   if (!notif.leida) {
     await notificacionStore.marcarComoLeida(notif.id)
   }
-  // Aquí podrías redirigir a la acción correspondiente
   dialogNotificaciones.value = false
+  $q.notify({
+    message: `Notificación: ${notif.mensaje}`,
+    color: 'primary',
+    icon: 'info'
+  })
 }
 
 async function eliminarNotificacion(id) {
@@ -369,12 +474,14 @@ async function eliminarNotificacion(id) {
     await notificacionStore.eliminarNotificacion(id)
     $q.notify({
       type: 'positive',
-      message: 'Notificación eliminada'
+      message: 'Notificación eliminada',
+      position: 'top'
     })
   } catch {
     $q.notify({
       type: 'negative',
-      message: 'Error eliminando notificación'
+      message: 'Error eliminando notificación',
+      position: 'top'
     })
   }
 }
@@ -384,12 +491,14 @@ async function marcarTodasLeidas() {
     await notificacionStore.marcarTodasLeidas()
     $q.notify({
       type: 'positive',
-      message: 'Todas las notificaciones marcadas como leídas'
+      message: 'Todas las notificaciones marcadas como leídas',
+      position: 'top'
     })
   } catch {
     $q.notify({
       type: 'negative',
-      message: 'Error marcando notificaciones'
+      message: 'Error marcando notificaciones',
+      position: 'top'
     })
   }
 }
@@ -404,10 +513,18 @@ function cambiarPassword() {
 }
 
 async function submitCambiarPassword() {
+  if (!user.value) {
+    $q.notify({
+      type: 'negative',
+      message: 'No se pudo identificar al usuario'
+    })
+    return
+  }
+
   loadingPassword.value = true
   try {
     await userService.cambiarPassword({
-      user_id: user.value.id, // Temporal - cambiar por auth cuando esté listo
+      user_id: user.value.id,
       ...passwordForm.value
     })
 
@@ -417,7 +534,13 @@ async function submitCambiarPassword() {
     })
 
     dialogCambiarPassword.value = false
+    passwordForm.value = {
+      password_actual: '',
+      password_nuevo: '',
+      password_nuevo_confirmation: ''
+    }
   } catch (error) {
+    console.error('Error cambiando contraseña:', error)
     $q.notify({
       type: 'negative',
       message: error.response?.data?.message || 'Error cambiando contraseña'
@@ -428,15 +551,54 @@ async function submitCambiarPassword() {
 }
 
 async function logout() {
-  $q.dialog({
-    title: 'Cerrar Sesión',
-    message: '¿Estás seguro de que quieres cerrar sesión?',
-    cancel: true,
-    persistent: true
-  }).onOk(async () => {
-    await authStore.logout()
-    router.push('/login')
-  })
+  try {
+    loadingUserMenu.value = true
+
+    $q.dialog({
+      title: 'Cerrar Sesión',
+      message: '¿Estás seguro de que quieres cerrar sesión?',
+      cancel: true,
+      persistent: true,
+      ok: {
+        label: 'Sí, cerrar sesión',
+        color: 'primary',
+        unelevated: true
+      },
+    }).onOk(async () => {
+      try {
+        $q.loading.show({
+          message: 'Cerrando sesión...'
+        })
+
+        await authStore.logout()
+
+        $q.loading.hide()
+        router.push('/login')
+
+        $q.notify({
+          type: 'positive',
+          message: 'Sesión cerrada exitosamente',
+          position: 'top',
+          timeout: 2000
+        })
+
+      } catch (error) {
+        $q.loading.hide()
+        console.error('Error durante logout:', error)
+
+        authStore.clearAuth()
+        router.push('/login')
+
+        $q.notify({
+          type: 'info',
+          message: 'Sesión cerrada',
+          position: 'top'
+        })
+      }
+    })
+  } finally {
+    loadingUserMenu.value = false
+  }
 }
 
 // Lifecycle
@@ -444,3 +606,86 @@ onMounted(() => {
   loadNotificaciones()
 })
 </script>
+
+<style scoped>
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+}
+
+.menu-list {
+  padding: 16px 8px;
+}
+
+.menu-item {
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  margin-bottom: 4px;
+}
+
+.menu-item:hover {
+  background-color: #e3f2fd;
+  transform: translateX(4px);
+}
+
+.menu-item-active {
+  background-color: #e3f2fd !important;
+  border-right: 4px solid #1976d2;
+  color: #1976d2;
+}
+
+.menu-item-active .q-icon {
+  color: #1976d2;
+}
+
+.user-avatar {
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.user-avatar:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.user-menu {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.notifications-card {
+  width: 450px;
+  max-width: 90vw;
+  border-radius: 12px;
+}
+
+.notification-item {
+  border-radius: 8px;
+  margin: 4px 0;
+  transition: all 0.3s ease;
+}
+
+.notification-item:hover {
+  background-color: #f5f5f5;
+  transform: translateY(-1px);
+}
+
+.notification-badge {
+  font-size: 10px;
+  padding: 2px 4px;
+  min-width: 18px;
+  height: 18px;
+}
+
+.password-card {
+  width: 400px;
+  max-width: 90vw;
+  border-radius: 12px;
+}
+
+.opacity-60 {
+  opacity: 0.6;
+}
+
+.opacity-80 {
+  opacity: 0.8;
+}
+</style>

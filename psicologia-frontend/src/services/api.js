@@ -13,7 +13,7 @@ export const authService = {
   },
   register(userData) {
     return api.post('/register', userData)
-  },
+  }
 }
 
 // Servicio de Usuarios
@@ -44,7 +44,7 @@ export const userService = {
   },
   cambiarPassword(passwordData) {
     return api.post('/cambiar-password', passwordData)
-  },
+  }
 }
 
 // Servicio de Estudiantes
@@ -53,7 +53,7 @@ export const estudianteService = {
     return api.get('/estudiantes')
   },
   createEstudiante(estudianteData) {
-    return api.post('/estudiantes', estudianteData) // NOTA: Cambiar a POST en backend
+    return api.post('/estudiantes', estudianteData)
   },
   getEstudiante(dni) {
     return api.get(`/estudiantes/${dni}`)
@@ -66,7 +66,7 @@ export const estudianteService = {
   },
   searchEstudiantes(params) {
     return api.get('/estudiante-search', { params })
-  },
+  }
 }
 
 // Servicio de Apoderados
@@ -85,9 +85,10 @@ export const apoderadoService = {
   },
   deleteApoderado(id) {
     return api.delete(`/apoderados/${id}`)
-  },
+  }
 }
 
+// Servicio de Diagnósticos
 export const diagnosticoService = {
   getDiagnosticos(params = {}) {
     return api.get('/diagnosticos', { params })
@@ -109,9 +110,10 @@ export const diagnosticoService = {
   },
   getEstadisticas() {
     return api.get('/diagnosticos-estadisticas')
-  },
+  }
 }
 
+// Servicio de Citas
 export const citaService = {
   getCitas(params = {}) {
     return api.get('/citas', { params })
@@ -133,9 +135,10 @@ export const citaService = {
   },
   marcarRealizada(id) {
     return api.patch(`/citas/${id}/realizada`)
-  },
+  }
 }
 
+// Servicio de Reportes
 export const reporteService = {
   getReportes() {
     return api.get('/reportes')
@@ -157,9 +160,10 @@ export const reporteService = {
   },
   getEstadisticasGlobales() {
     return api.get('/reportes-estadisticas-globales')
-  },
+  }
 }
 
+// Servicio de Notificaciones
 export const notificacionService = {
   getNotificaciones() {
     return api.get('/notificaciones')
@@ -184,7 +188,7 @@ export const notificacionService = {
   },
   getEnviadas() {
     return api.get('/notificaciones-enviadas')
-  },
+  }
 }
 
 export default api

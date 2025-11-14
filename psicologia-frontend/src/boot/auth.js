@@ -13,11 +13,18 @@ export default boot(({ router, store }) => {
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
     const userRole = authStore.getUserRole
 
+    console.log('Navigation guard:', {
+      to: to.path,
+      requiresAuth,
+      isAuthenticated,
+      userRole
+    })
+
     if (requiresAuth && !isAuthenticated) {
-      // Redirigir a login si la ruta requiere auth y no está autenticado
+      console.log('Redirecting to login: requires auth but not authenticated')
       next('/login')
     } else if (to.path === '/login' && isAuthenticated) {
-      // Redirigir al dashboard si ya está autenticado y trata de acceder a login
+      console.log('Redirecting to dashboard: already authenticated')
       next('/')
     } else if (to.meta.roles && userRole) {
       // Verificar roles específicos si la ruta los requiere
@@ -25,7 +32,8 @@ export default boot(({ router, store }) => {
       if (hasRequiredRole) {
         next()
       } else {
-        next('/unauthorized')
+        console.log('Access denied: insufficient role')
+        next('/')
       }
     } else {
       next()
