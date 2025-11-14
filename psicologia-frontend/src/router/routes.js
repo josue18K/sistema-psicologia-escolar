@@ -1,128 +1,98 @@
-import { ROLES } from 'src/utils/constants'
-
 const routes = [
+  // Ruta pública - Login
+  {
+    path: '/login',
+    name: 'login',
+    component: () => import('pages/auth/LoginPage.vue'),
+    meta: { requiresAuth: false }
+  },
+
+  // Layout principal (requiere autenticación)
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     meta: { requiresAuth: true },
     children: [
+      // Dashboard según rol
       {
         path: '',
         name: 'dashboard',
-        component: () => import('pages/IndexPage.vue'),
-        meta: {
-          title: 'Dashboard',
-          requiresAuth: true
-        }
+        component: () => import('pages/IndexPage.vue')
       },
+
+      // --- RUTAS PARA TOE ---
       {
-        path: 'estudiantes',
-        name: 'estudiantes',
-        component: () => import('pages/EstudiantesPage.vue'),
-        meta: {
-          title: 'Estudiantes',
-          requiresAuth: true
-        }
-      },
-      {
-        path: 'estudiantes/nuevo',
-        name: 'estudiante-nuevo',
-        component: () => import('pages/EstudianteFormPage.vue'),
-        meta: {
-          title: 'Nuevo Estudiante',
-          requiresAuth: true,
-          roles: [ROLES.TOE, ROLES.PSICOLOGO]
-        }
-      },
-      {
-        path: 'estudiantes/editar/:dni',
-        name: 'estudiante-editar',
-        component: () => import('pages/EstudianteFormPage.vue'),
-        meta: {
-          title: 'Editar Estudiante',
-          requiresAuth: true,
-          roles: [ROLES.TOE, ROLES.PSICOLOGO]
-        }
-      },
-      {
-        path: 'estudiantes/:dni',
-        name: 'estudiante-detalle',
-        component: () => import('pages/EstudianteDetailPage.vue'),
-        meta: {
-          title: 'Detalle Estudiante',
-          requiresAuth: true
-        }
-      },
-      {
-        path: 'apoderados',
-        name: 'apoderados',
-        component: () => import('pages/ApoderadosPage.vue'),
-        meta: {
-          title: 'Apoderados',
-          requiresAuth: true
-        }
-      },
-      {
-        path: 'usuarios',
+        path: '/usuarios',
         name: 'usuarios',
-        component: () => import('pages/UsuariosPage.vue'),
-        meta: {
-          title: 'Usuarios',
-          requiresAuth: true,
-          roles: [ROLES.TOE]
-        }
+        component: () => import('pages/toe/UsuariosPage.vue'),
+        meta: { roles: ['TOE'] }
+      },
+
+      // --- RUTAS PARA PSICOLOGO ---
+      {
+        path: '/estudiantes',
+        name: 'estudiantes',
+        component: () => import('pages/estudiantes/EstudiantesPage.vue'),
+        meta: { roles: ['TOE', 'PSICOLOGO'] }
       },
       {
-        path: 'diagnosticos',
+        path: '/diagnosticos',
         name: 'diagnosticos',
-        component: () => import('pages/DiagnosticosPage.vue'),
-        meta: {
-          title: 'Diagnósticos',
-          requiresAuth: true,
-          roles: [ROLES.TOE, ROLES.PSICOLOGO]
-        }
+        component: () => import('pages/diagnosticos/DiagnosticosPage.vue'),
+        meta: { roles: ['PSICOLOGO'] }
       },
       {
-        path: 'citas',
+        path: '/anamnesis',
+        name: 'anamnesis',
+        component: () => import('pages/anamnesis/AnamnesisPage.vue'),
+        meta: { roles: ['PSICOLOGO'] }
+      },
+      {
+        path: '/citas',
         name: 'citas',
-        component: () => import('pages/CitasPage.vue'),
-        meta: {
-          title: 'Citas',
-          requiresAuth: true,
-          roles: [ROLES.TOE, ROLES.PSICOLOGO]
-        }
+        component: () => import('pages/citas/CitasPage.vue'),
+        meta: { roles: ['PSICOLOGO'] }
       },
       {
-        path: 'reportes',
+        path: '/reportes',
         name: 'reportes',
-        component: () => import('pages/ReportesPage.vue'),
-        meta: {
-          title: 'Reportes',
-          requiresAuth: true,
-          roles: [ROLES.TOE, ROLES.PSICOLOGO, ROLES.DIRECTOR]
-        }
-      }
-    ]
-  },
+        component: () => import('pages/reportes/ReportesPage.vue'),
+        meta: { roles: ['PSICOLOGO', 'DIRECTOR'] }
+      },
 
-  // Auth Layout
-  {
-    path: '/',
-    component: () => import('layouts/AuthLayout.vue'),
-    children: [
+      // --- RUTAS PARA TUTOR ---
       {
-        path: 'login',
-        name: 'login',
-        component: () => import('pages/LoginPage.vue'),
-        meta: {
-          title: 'Iniciar Sesión',
-          requiresAuth: false
-        }
+        path: '/mis-estudiantes',
+        name: 'mis-estudiantes',
+        component: () => import('pages/tutor/MisEstudiantesPage.vue'),
+        meta: { roles: ['TUTOR'] }
+      },
+
+      // --- RUTAS PARA DIRECTOR ---
+      {
+        path: '/estadisticas',
+        name: 'estadisticas',
+        component: () => import('pages/director/EstadisticasPage.vue'),
+        meta: { roles: ['DIRECTOR'] }
+      },
+
+      // --- NOTIFICACIONES (todos los roles) ---
+      {
+        path: '/notificaciones',
+        name: 'notificaciones',
+        component: () => import('pages/notificaciones/NotificacionesPage.vue')
       }
     ]
   },
 
-  // Always leave this as last one
+  // Página de acceso denegado
+  {
+    path: '/forbidden',
+    name: 'forbidden',
+    component: () => import('pages/ErrorForbidden.vue')
+  },
+
+  // 404 - Siempre al final
   {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue')

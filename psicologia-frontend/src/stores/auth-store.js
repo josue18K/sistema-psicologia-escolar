@@ -1,17 +1,19 @@
 import { defineStore } from 'pinia'
-import { authService } from 'src/services/api'
+import { api } from 'boot/axios'
+import { Notify } from 'quasar'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: null,
-    token: null,
-    isAuthenticated: false
+    user: JSON.parse(localStorage.getItem('user')) || null,
+    token: localStorage.getItem('token') || null,
+    isAuthenticated: !!localStorage.getItem('token'),
+    loading: false
   }),
 
   getters: {
-    getUser: (state) => state.user,
-    isAuth: (state) => state.isAuthenticated,
-    getUserRole: (state) => state.user?.rol,
+    currentUser: (state) => state.user,
+    userRole: (state) => state.user?.rol || null,
+    isLoggedIn: (state) => state.isAuthenticated,
     isTOE: (state) => state.user?.rol === 'TOE',
     isPsicologo: (state) => state.user?.rol === 'PSICOLOGO',
     isTutor: (state) => state.user?.rol === 'TUTOR',
@@ -19,86 +21,80 @@ export const useAuthStore = defineStore('auth', {
   },
 
   actions: {
+    // LOGIN
     async login(credentials) {
+      this.loading = true
       try {
-        const response = await authService.login(credentials)
+        const response = await api.post('/login', credentials)
 
-        if (response.data.user) {
-          this.user = response.data.user
-          this.isAuthenticated = true
+        const { token, user } = response.data
 
-          // Guardar en localStorage
-          localStorage.setItem('user_data', JSON.stringify(this.user))
-          localStorage.setItem('isAuthenticated', 'true')
+        // Guardar en localStorage
+        localStorage.setItem('token', token)
+        localStorage.setItem('user', JSON.stringify(user))
 
-          return { success: true, user: this.user }
-        }
+        // Actualizar estado
+        this.token = token
+        this.user = user
+        this.isAuthenticated = true
+
+        Notify.create({
+          type: 'positive',
+          message: `Bienvenido ${user.name}`,
+          position: 'top'
+        })
+
+        return { success: true, user }
       } catch (error) {
-        console.error('Error en login:', error)
-        return {
-          success: false,
-          error: error.response?.data?.message || 'Error de conexión'
-        }
-      }
-    },
-
-    async logout() {
-      try {
-        // Intentar hacer logout en el backend
-        await authService.logout()
-      } catch (error) {
-        console.error('Error en logout API:', error)
-        // Continuar con el logout local incluso si falla la API
+        Notify.create({
+          type: 'negative',
+          message: error.response?.data?.message || 'Error al iniciar sesión',
+          position: 'top'
+        })
+        return { success: false, error }
       } finally {
-        this.clearAuth()
+        this.loading = false
       }
     },
 
-    async checkAuth() {
+    // LOGOUT
+    async logout() {
+      this.loading = true
       try {
-        const response = await authService.me()
-        if (response.data.user) {
-          this.user = response.data.user
-          this.isAuthenticated = true
-          return true
-        }
+        await api.post('/logout')
       } catch (error) {
-        console.error('Error checking auth:', error)
-        this.clearAuth()
+        console.error('Error al cerrar sesión:', error)
+      } finally {
+        // Limpiar todo
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        this.token = null
+        this.user = null
+        this.isAuthenticated = false
+        this.loading = false
+
+        Notify.create({
+          type: 'info',
+          message: 'Sesión cerrada exitosamente',
+          position: 'top'
+        })
+      }
+    },
+
+    // VERIFICAR USUARIO AUTENTICADO
+    async checkAuth() {
+      if (!this.token) {
         return false
       }
-    },
 
-    clearAuth() {
-      this.user = null
-      this.token = null
-      this.isAuthenticated = false
-
-      // Limpiar localStorage completamente
-      localStorage.removeItem('user_data')
-      localStorage.removeItem('isAuthenticated')
-      localStorage.removeItem('auth_token')
-
-      // Limpiar sessionStorage también por si acaso
-      sessionStorage.clear()
-
-      console.log('Auth cleared successfully')
-    },
-
-    initializeAuth() {
-      // Recuperar datos del localStorage al iniciar la app
-      const userData = localStorage.getItem('user_data')
-      const isAuth = localStorage.getItem('isAuthenticated')
-
-      if (userData && isAuth === 'true') {
-        try {
-          this.user = JSON.parse(userData)
-          this.isAuthenticated = true
-          console.log('Auth initialized from localStorage')
-        } catch (error) {
-          console.error('Error parsing user data:', error)
-          this.clearAuth()
-        }
+      try {
+        const response = await api.get('/me')
+        this.user = response.data.user
+        this.isAuthenticated = true
+        return true
+      } catch  {
+        this.logout()
+        return false
       }
     }
   }
