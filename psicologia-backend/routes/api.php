@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\DiagnosticoController;
 use App\Http\Controllers\Api\CitaController;
 use App\Http\Controllers\Api\ReporteController;
 use App\Http\Controllers\Api\NotificacionController;
+use App\Http\Controllers\Api\AnamnesisController;
 
 //RUTAS AUTH
 
@@ -84,4 +85,12 @@ Route::get('/notificaciones-no-leidas', [NotificacionController::class, 'noLeida
 Route::get('/notificaciones-enviadas', [NotificacionController::class, 'enviadas']);
 
 
+// ANAMNESIS
+Route::get('/anamnesis', [AnamnesisController::class, 'index']);
+Route::post('/anamnesis', [AnamnesisController::class, 'store']);
+Route::get('/anamnesis/{anamnesis}', [AnamnesisController::class, 'show']);
+Route::put('/anamnesis/{anamnesis}', [AnamnesisController::class, 'update']);
+Route::delete('/anamnesis/{anamnesis}', [AnamnesisController::class, 'destroy']);
+Route::get('/anamnesis-estudiante/{dni}', [AnamnesisController::class, 'byEstudiante']);
+Route::get('/anamnesis-verificar/{dni}', [AnamnesisController::class, 'verificarExistencia']);
 

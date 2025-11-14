@@ -53,4 +53,8 @@ class Estudiante extends Model
     {
         return "{$this->nombres} {$this->apellidos}";
     }
+    public function anamnesis()
+    {
+        return $this->hasMany(Anamnesis::class, 'dni_estudiante', 'dni');
+    }
 }
