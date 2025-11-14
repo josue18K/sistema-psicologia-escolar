@@ -1,98 +1,315 @@
-// app global css in SCSS form
-// Importar Quasar variables
 @import './quasar.variables.scss';
+@import 'animate.css';
 
-// Colores personalizados del sistema
-$primary-dark: #1a237e;
-$primary-light: #3949ab;
-$accent-color: #00bcd4;
-$success-color: #4caf50;
-$warning-color: #ff9800;
-$danger-color: #f44336;
-
-// Utilidades globales
-.bg-gradient-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.bg-gradient-success {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-}
-
-.bg-gradient-warning {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-}
-
-.card-shadow {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+// Variables globales
+:root {
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  --warning-gradient: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+  --danger-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   
-  &:hover {
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-    transform: translateY(-4px);
-  }
-}
-
-.stat-card {
-  border-left: 4px solid;
-  transition: all 0.3s ease;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.18);
+  --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.25);
   
-  &:hover {
-    transform: translateX(4px);
-  }
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
 }
 
-// Animaciones
-@keyframes fadeIn {
+// Animaciones personalizadas
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7); }
+  50% { box-shadow: 0 0 0 15px rgba(102, 126, 234, 0); }
+}
+
+@keyframes slide-in-right {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateX(100px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(0);
   }
 }
 
-.fade-in {
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-// Tablas mejoradas
-.modern-table {
-  .q-table__top {
-    padding: 16px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 8px 8px 0 0;
-  }
+// Glassmorphism effect
+.glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-lg);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   
-  .q-table thead tr,
-  .q-table tbody td {
-    border: none;
-  }
-  
-  .q-table tbody tr:hover {
-    background: rgba(103, 126, 234, 0.05);
+  &:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--shadow-xl);
   }
 }
 
-// Botones personalizados
-.btn-action {
+// Neumorphism cards
+.neuro-card {
+  background: #f0f0f3;
+  border-radius: var(--radius-lg);
+  box-shadow: 
+    8px 8px 16px rgba(163, 177, 198, 0.6),
+    -8px -8px 16px rgba(255, 255, 255, 0.5);
   transition: all 0.3s ease;
   
   &:hover {
-    transform: scale(1.1);
+    box-shadow: 
+      4px 4px 8px rgba(163, 177, 198, 0.6),
+      -4px -4px 8px rgba(255, 255, 255, 0.5);
   }
 }
 
-// Cards modernos
-.info-card {
-  border-radius: 12px;
+// Stats cards con gradientes
+.stat-card-gradient {
+  position: relative;
   overflow: hidden;
-  transition: all 0.3s ease;
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: inherit;
+    opacity: 0.9;
+    transition: opacity 0.4s ease;
+  }
   
   &:hover {
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    transform: translateY(-12px) rotateX(10deg);
+    box-shadow: var(--shadow-xl);
+    
+    &::before {
+      opacity: 1;
+    }
+  }
+  
+  &.primary {
+    background: var(--primary-gradient);
+    animation: pulse-glow 2s infinite;
+  }
+  
+  &.success {
+    background: var(--success-gradient);
+  }
+  
+  &.warning {
+    background: var(--warning-gradient);
+  }
+  
+  &.danger {
+    background: var(--danger-gradient);
+  }
+  
+  .stat-icon {
+    font-size: 64px;
+    opacity: 0.3;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  .stat-content {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// Tablas modernas con glassmorphism
+.modern-table-premium {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  
+  .q-table__top {
+    background: var(--primary-gradient);
+    color: white;
+    padding: 20px 24px;
+    
+    .text-h6 {
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+  }
+  
+  .q-table thead tr {
+    background: linear-gradient(to right, #f8f9fa, #ffffff);
+    
+    th {
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 1px;
+      color: #667eea;
+    }
+  }
+  
+  .q-table tbody {
+    tr {
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background: linear-gradient(to right, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+        transform: scale(1.01);
+        box-shadow: var(--shadow-sm);
+      }
+    }
+  }
+}
+
+// Botones con efectos avanzados
+.btn-premium {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+  
+  &:hover::before {
+    width: 300px;
+    height: 300px;
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+// Inputs mejorados
+.input-premium {
+  .q-field__control {
+    border-radius: var(--radius-md);
+    transition: all 0.3s ease;
+    
+    &::before {
+      border-color: #e0e0e0;
+      transition: border-color 0.3s ease;
+    }
+    
+    &:hover::before {
+      border-color: #667eea;
+    }
+  }
+  
+  &.q-field--focused {
+    .q-field__control {
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+  }
+}
+
+// Skeleton loaders personalizados
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 0%,
+    #f8f8f8 50%,
+    #f0f0f0 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+// Notificaciones mejoradas
+.q-notification {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-lg) !important;
+  backdrop-filter: blur(10px);
+  
+  &.bg-positive {
+    background: var(--success-gradient) !important;
+  }
+  
+  &.bg-negative {
+    background: var(--danger-gradient) !important;
+  }
+  
+  &.bg-warning {
+    background: var(--warning-gradient) !important;
+  }
+  
+  &.bg-info {
+    background: var(--info-gradient) !important;
+  }
+}
+
+// Responsive utilities
+@media (max-width: 599px) {
+  .stat-card-gradient {
+    .stat-icon {
+      font-size: 48px;
+    }
+  }
+}
+
+// Scroll suave
+html {
+  scroll-behavior: smooth;
+}
+
+// Scrollbar personalizado
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 10px;
+  
+  &:hover {
+    background: linear-gradient(135deg, #764ba2, #667eea);
+  }
+}
+
+// Loading personalizado
+.custom-loading {
+  .q-loading__backdrop {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.8) !important;
   }
 }
