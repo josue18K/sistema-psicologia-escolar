@@ -1,0 +1,35 @@
+****************************
+GIA DE INSTALACION DE QUASAR
+****************************
+
+****************************
+PRIMERO
+****************************
+Revisa si tienes instalado npm y node.js
+-Ingresa a tu consola y escribe los siguientes comandos
+	$ npm -v
+	$ node -v
+Y veras en la consola o terminal, las versiones de las dos herramientas.
+
+****************************
+SEGUNDO
+****************************
+1. Crea una capeta en el escritorio y nombralo EJEMPLO-QUASAR
+2. Abre tu terminal o consola adentro de la carpeta(Asegurate que la direccion sea la correcta)
+3. Ingresa el siguiente comando en la consola
+	$ npm i -g @quasar/cli
+4. Ahora ingresa el siguiente comando
+	$ npm init quasar@latest
+Les saldra la configuracion del proyecto:
+
+
+Revisa en el proyecto la imagen config-quasar.png
+
+****************************
+TERCERO
+****************************
+Despues de que el proyecto termine de instalar ingresa a la carpeta del proyecto con:
+    $ cd ejemplo-quasar
+
+Estando adentro de la carperta inicia el proyecto con el siguiente comando:
+    $ npm run dev
