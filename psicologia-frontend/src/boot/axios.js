@@ -4,7 +4,7 @@ import { Notify } from 'quasar'
 
 // Crear instancia de axios
 const api = axios.create({
-baseURL: 'http://localhost:8000/api', // URL de tu backend Laravel
+baseURL: 'http://52.15.51.86/api', // URL de tu backend Laravel http://localhost:8000/api
 headers: {
 'Content-Type': 'application/json',
 'Accept': 'application/json'
